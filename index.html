@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hệ Thống Quản Lý Thi Đua & Thành Tích Học Sinh</title>
+<style>
+:root{
+  --bg-card:#fff;
+  --pastel-pink:#ffd6e0;--pastel-blue:#d4e8ff;--pastel-mint:#d3f8e2;
+  --pastel-yellow:#fff3c4;--pastel-purple:#e8dff5;--pastel-red:#ffe0e0;
+  --pastel-blue-dark:#4a89dc;
+  --text-main:#333842;--text-muted:#6c757d;--border-color:#ece8e1;
+  --shadow:0 6px 20px rgba(74,85,104,.06);--radius:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif}
+body{background:linear-gradient(135deg,#fdfbf7 0%,#f4f8ff 50%,#fff6f9 100%);color:var(--text-main);min-height:100vh;padding-bottom:40px}
+header{background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:2px solid var(--border-color);padding:16px 24px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.03)}
+.header-container{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-icon{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--pastel-pink),var(--pastel-blue));display:flex;align-items:center;justify-content:center;font-size:24px}
+.brand h1{font-size:1.25rem;font-weight:700;color:#2b303a}
+.brand p{font-size:.82rem;color:var(--text-muted)}
+.header-actions{display:flex;flex-wrap:wrap;gap:8px}
+.btn{border:none;padding:9px 15px;border-radius:10px;font-weight:600;font-size:.88rem;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s ease}
+.btn:hover{transform:translateY(-1px);filter:brightness(.97)}
+.btn:active{transform:translateY(0)}
+.btn-primary{background:var(--pastel-blue);color:#1f5ca8}
+.btn-success{background:var(--pastel-mint);color:#1e7348}
+.btn-warning{background:var(--pastel-yellow);color:#8f6400}
+.btn-purple{background:var(--pastel-purple);color:#5a3882}
+.btn-danger{background:var(--pastel-red);color:#b02a2a}
+.btn-outline{background:#fff;border:1.5px solid var(--border-color);color:var(--text-main)}
+.btn-sm{padding:6px 10px;font-size:.8rem;border-radius:8px}
+.nav-tabs{max-width:1280px;margin:20px auto 0;padding:0 24px;display:flex;gap:10px;flex-wrap:wrap}
+.tab-btn{padding:11px 20px;border-radius:12px;border:1.5px solid transparent;background:rgba(255,255,255,.75);color:var(--text-muted);font-weight:600;font-size:.92rem;cursor:pointer;transition:all .2s}
+.tab-btn.active{background:#fff;color:#2b303a;border-color:var(--pastel-blue);box-shadow:var(--shadow)}
+main{max-width:1280px;margin:20px auto 0;padding:0 24px}
+.tab-content{display:none}
+.tab-content.active{display:block;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--bg-card);border-radius:var(--radius);padding:20px;border:1.5px solid var(--border-color);box-shadow:var(--shadow)}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.card-title{font-size:1.08rem;font-weight:700;display:flex;align-items:center;gap:8px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{padding:18px;border-radius:var(--radius);display:flex;align-items:center;gap:14px;border:1.5px solid rgba(255,255,255,.8);box-shadow:var(--shadow)}
+.stat-icon{width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;font-size:22px}
+.stat-info h3{font-size:1.45rem;font-weight:800}
+.stat-info p{font-size:.84rem;opacity:.85;font-weight:600}
+.teams-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:20px}
+.team-card{background:#fff;border-radius:var(--radius);border:2px solid var(--border-color);overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.team-header{padding:16px 18px;display:flex;justify-content:space-between;align-items:center}
+.team-title-wrap h3{font-size:1.12rem;font-weight:700}
+.team-title-wrap span{font-size:.82rem;opacity:.85;font-weight:600}
+.team-score-badge{background:rgba(255,255,255,.9);padding:6px 12px;border-radius:20px;font-weight:800;font-size:1rem;box-shadow:0 2px 6px rgba(0,0,0,.05)}
+.team-actions-bar{padding:10px 16px;background:#faf9f6;border-bottom:1px solid var(--border-color);display:flex;justify-content:space-between;align-items:center;gap:8px}
+.student-list{padding:12px 16px;display:flex;flex-direction:column;gap:10px;flex:1}
+.student-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:12px;background:#fdfcfa;border:1px solid var(--border-color);transition:all .15s;gap:8px}
+.student-item:hover{background:#f5f9ff;border-color:var(--pastel-blue)}
+.student-meta{display:flex;flex-direction:column;gap:3px}
+.student-name{font-weight:600;font-size:.95rem}
+.badge-pill{font-size:.72rem;padding:2px 8px;border-radius:20px;font-weight:700;display:inline-flex;align-items:center;gap:4px}
+.student-controls{display:flex;align-items:center;gap:6px}
+.score-chip{font-weight:800;font-size:.92rem;padding:4px 10px;border-radius:8px;min-width:52px;text-align:center;display:inline-block}
+.score-pos{background:var(--pastel-mint);color:#1b6e44}
+.score-neg{background:var(--pastel-red);color:#b02a2a}
+.score-zero{background:#f1f3f5;color:#495057}
+.rules-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.rule-card{padding:14px 16px;border-radius:14px;border:1.5px solid var(--border-color);display:flex;justify-content:space-between;align-items:center;gap:10px}
+.rule-card.positive{background:#f4fcf8;border-color:#bfead2}
+.rule-card.negative{background:#fff6f6;border-color:#f7caca}
+.rule-points{font-size:1.1rem;font-weight:800;padding:6px 12px;border-radius:10px;white-space:nowrap}
+.rule-card.positive .rule-points{background:var(--pastel-mint);color:#1b6e44}
+.rule-card.negative .rule-points{background:var(--pastel-red);color:#b02a2a}
+.leaderboard-split{display:grid;grid-template-columns:1fr 1.4fr;gap:20px}
+@media(max-width:860px){.leaderboard-split{grid-template-columns:1fr}}
+.rank-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:12px;margin-bottom:10px;border:1px solid var(--border-color);background:#fff}
+.rank-row.top-1{background:linear-gradient(90deg,#fff8db,#fff);border-color:#ffe066}
+.rank-row.top-2{background:linear-gradient(90deg,#f1f5f9,#fff);border-color:#cbd5e1}
+.rank-row.top-3{background:linear-gradient(90deg,#ffedd5,#fff);border-color:#fed7aa}
+.rank-left{display:flex;align-items:center;gap:12px}
+.rank-medal{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem;background:#f1f3f5}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--border-color)}
+th{background:#f8f7f4;font-weight:700;color:#495057}
+.form-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+input,select{padding:9px 13px;border-radius:10px;border:1.5px solid var(--border-color);font-size:.9rem;background:#fff;color:var(--text-main);outline:none}
+input:focus,select:focus{border-color:var(--pastel-blue-dark)}
+.manage-split{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:860px){.manage-split{grid-template-columns:1fr}}
+.modal-backdrop{position:fixed;inset:0;background:rgba(30,35,45,.45);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:999;padding:16px}
+.modal-backdrop.open{display:flex}
+.modal{background:#fff;border-radius:20px;max-width:540px;width:100%;padding:24px;box-shadow:0 20px 40px rgba(0,0,0,.15);animation:fadeIn .2s ease;max-height:90vh;overflow-y:auto}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:1.5px solid var(--border-color)}
+.close-btn{background:#f1f3f5;border:none;width:32px;height:32px;border-radius:50%;font-size:1.1rem;cursor:pointer}
+.quick-rules-list{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+@media(max-width:500px){.quick-rules-list{grid-template-columns:1fr}}
+.quick-rule-btn{padding:12px;border-radius:12px;border:1.5px solid var(--border-color);background:#fff;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;transition:all .15s}
+.quick-rule-btn.pos:hover{background:#e8fbf0;border-color:#74d69f}
+.quick-rule-btn.neg:hover{background:#ffeded;border-color:#f28b8b}
+.toast{position:fixed;bottom:24px;right:24px;background:#2b303a;color:#fff;padding:12px 18px;border-radius:12px;font-size:.9rem;font-weight:600;box-shadow:0 10px 25px rgba(0,0,0,.18);transform:translateY(100px);opacity:0;transition:all .3s ease;z-index:1000;max-width:calc(100vw - 48px)}
+.toast.show{transform:translateY(0);opacity:1}
+.empty-state{text-align:center;padding:24px;color:var(--text-muted);font-size:.9rem}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-container">
+    <div class="brand">
+      <div class="brand-icon">🏆</div>
+      <div>
+        <h1>Thi Đua & Thành Tích Lớp Học</h1>
+        <p>Gamification theo tổ • Tự động lưu trên trình duyệt</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" onclick="exportJSON()">💾 Xuất JSON</button>
+      <button class="btn btn-purple" onclick="document.getElementById('importFile').click()">📂 Nhập JSON</button>
+      <button class="btn btn-success" onclick="exportCSV()">📊 Xuất Excel (CSV)</button>
+      <button class="btn btn-outline" onclick="resetDemoData()">🔄 Dữ liệu mẫu</button>
+      <input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="importJSON(event)" />
+    </div>
+  </div>
+</header>
+
+<nav class="nav-tabs">
+  <button class="tab-btn active" onclick="switchTab('classroom', this)">🏫 Lớp Học</button>
+  <button class="tab-btn" onclick="switchTab('leaderboard', this)">🥇 Bảng Xếp Hạng</button>
+  <button class="tab-btn" onclick="switchTab('rules', this)">📜 Quy Tắc Điểm</button>
+  <button class="tab-btn" onclick="switchTab('history', this)">🕘 Lịch Sử</button>
+  <button class="tab-btn" onclick="switchTab('manage', this)">⚙️ Quản Lý Tổ & Học Sinh</button>
+</nav>
+
+<main>
+  <section id="tab-classroom" class="tab-content active">
+    <div class="stats-grid" id="summaryStats"></div>
+    <div class="teams-grid" id="teamsGrid"></div>
+  </section>
+
+  <section id="tab-leaderboard" class="tab-content">
+    <div class="leaderboard-split">
+      <div class="card">
+        <div class="card-header"><div class="card-title">🚩 Xếp hạng theo Tổ</div></div>
+        <div id="teamLeaderboard"></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🧑‍🎓 Xếp hạng Cá nhân</div>
+          <select id="filterLeaderboardTeam" onchange="renderLeaderboard()"></select>
+        </div>
+        <div id="studentLeaderboard"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:20px">
+      <div class="card-title" style="margin-bottom:12px">🎖️ Mốc Huy Hiệu</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px">
+        <span class="badge-pill" style="background:#f1f3f5;color:#495057">🌱 Tân Binh: dưới 10đ</span>
+        <span class="badge-pill" style="background:#d3f8e2;color:#1b6e44">⭐ Ngôi Sao: từ 10đ</span>
+        <span class="badge-pill" style="background:#d4e8ff;color:#1f5ca8">🚀 Chiến Binh: từ 25đ</span>
+        <span class="badge-pill" style="background:#e8dff5;color:#5a3882">💎 Kiện Tướng: từ 50đ</span>
+        <span class="badge-pill" style="background:#fff3c4;color:#8f6400">👑 Huyền Thoại: từ 80đ</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-rules" class="tab-content">
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-title" style="margin-bottom:14px">➕ Thêm quy tắc mới</div>
+      <form class="form-row" onsubmit="addRule(event)">
+        <input type="text" id="ruleTitle" placeholder="Tên quy tắc (vd: Phát biểu xây dựng bài)" style="flex:1;min-width:220px" required />
+        <select id="ruleType">
+          <option value="pos">Cộng điểm (+)</option>
+          <option value="neg">Trừ điểm (−)</option>
+        </select>
+        <input type="number" id="rulePoints" placeholder="Số điểm" min="1" style="width:110px" required />
+        <button type="submit" class="btn btn-success">Thêm quy tắc</button>
+      </form>
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:14px">📜 Danh sách quy tắc cộng/trừ điểm nhanh</div>
+      <div class="rules-grid" id="rulesGrid"></div>
+    </div>
+  </section>
+
+  <section id="tab-history" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🕘 Nhật ký thưởng / phạt</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input type="text" id="searchHistory" placeholder="🔍 Tìm theo tên, tổ, lý do..." oninput="renderHistory()" />
+          <button class="btn btn-danger btn-sm" onclick="clearHistory()">Xóa nhật ký</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Thời gian</th><th>Đối tượng</th><th>Tổ</th><th>Lý do</th><th>Điểm</th><th></th></tr>
+          </thead>
+          <tbody id="historyTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-manage" class="tab-content">
+    <div class="manage-split">
+      <div class="card">
+        <div class="card-title" style="margin-bottom:14px">🚩 Quản lý Tổ</div>
+        <form class="form-row" onsubmit="addTeam(event)">
+          <input type="text" id="newTeamName" placeholder="Tên tổ mới (vd: Tổ 5)" style="flex:1" required />
+          <button type="submit" class="btn btn-primary">Thêm tổ</button>
+        </form>
+        <div id="manageTeamsList"></div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:14px">🧑‍🎓 Quản lý Học sinh</div>
+        <form class="form-row" onsubmit="addStudent(event)">
+          <input type="text" id="newStudentName" placeholder="Họ và tên học sinh" style="flex:1;min-width:160px" required />
+          <select id="newStudentTeam"></select>
+          <button type="submit" class="btn btn-primary">Thêm HS</button>
+        </form>
+        <div id="manageStudentsList"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Modal chấm điểm -->
+<div class="modal-backdrop" id="awardModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <h3 id="modalTargetTitle" style="font-size:1.1rem"></h3>
+        <p id="modalTargetSub" style="font-size:.84rem;color:var(--text-muted)"></p>
+      </div>
+      <button class="close-btn" onclick="closeAwardModal()">✕</button>
+    </div>
+    <div style="font-weight:700;font-size:.9rem;margin-bottom:10px">⚡ Quy tắc nhanh</div>
+    <div class="quick-rules-list" id="modalQuickRules"></div>
+    <div style="font-weight:700;font-size:.9rem;margin-bottom:10px">✏️ Tùy chỉnh</div>
+    <form class="form-row" onsubmit="submitCustomAward(event)">
+      <select id="customSign">
+        <option value="1">+ Cộng</option>
+        <option value="-1">− Trừ</option>
+      </select>
+      <input type="number" id="customPoints" placeholder="Điểm" min="1" style="width:90px" required />
+      <input type="text" id="customReason" placeholder="Lý do" style="flex:1;min-width:140px" required />
+      <button type="submit" class="btn btn-success">Áp dụng</button>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'oasis_classroom_gamification_v1';
+const TEAM_PASTEL_THEMES = [
+  { bg: '#ffd6e0', color: '#8f2440', border: '#ffb3c6' },
+  { bg: '#d4e8ff', color: '#1b4f91', border: '#a8d0ff' },
+  { bg: '#d3f8e2', color: '#19663f', border: '#a3ebbf' },
+  { bg: '#fff3c4', color: '#805a00', border: '#ffe27a' },
+  { bg: '#e8dff5', color: '#4f2f75', border: '#d0bdf0' },
+  { bg: '#ffe5d0', color: '#8c4308', border: '#ffc799' }
+];
+
+function buildDefaultData() {
+  return {
+    teams: [
+      { id: 't1', name: 'Tổ 1' }, { id: 't2', name: 'Tổ 2' },
+      { id: 't3', name: 'Tổ 3' }, { id: 't4', name: 'Tổ 4' }
+    ],
+    students: [
+      { id: 's1', name: 'Nguyễn Minh Anh', teamId: 't1', points: 15 },
+      { id: 's2', name: 'Trần Hoàng Nam', teamId: 't1', points: 10 },
+      { id: 's3', name: 'Lê Thảo Vy', teamId: 't1', points: 25 },
+      { id: 's4', name: 'Phạm Gia Huy', teamId: 't2', points: 20 },
+      { id: 's5', name: 'Vũ Khánh Linh', teamId: 't2', points: 5 },
+      { id: 's6', name: 'Đỗ Đức Minh', teamId: 't2', points: 15 },
+      { id: 's7', name: 'Bùi Ngọc Hà', teamId: 't3', points: 30 },
+      { id: 's8', name: 'Hoàng Tuấn Kiệt', teamId: 't3', points: 0 },
+      { id: 's9', name: 'Đặng Phương Nhi', teamId: 't3', points: 10 },
+      { id: 's10', name: 'Ngô Quốc Bảo', teamId: 't4', points: 15 },
+      { id: 's11', name: 'Dương Bảo Trâm', teamId: 't4', points: 20 },
+      { id: 's12', name: 'Trịnh Gia Bảo', teamId: 't4', points: 5 }
+    ],
+    rules: [
+      { id: 'r1', title: 'Được tuyên dương', points: 5 },
+      { id: 'r2', title: 'Điểm tốt bằng hoặc trên 9', points: 10 },
+      { id: 'r3', title: 'Nói chuyện riêng, bị nhắc nhở', points: -5 },
+      { id: 'r4', title: 'Điểm bằng hoặc dưới 5', points: -10 }
+    ],
+    history: [
+      {
+        id: 'h1',
+        timestamp: new Date().toLocaleString('vi-VN'),
+        targetType: 'student', targetId: 's7',
+        targetName: 'Bùi Ngọc Hà', teamName: 'Tổ 3',
+        reason: 'Điểm tốt bằng hoặc trên 9', points: 10
+      }
+    ]
+  };
+}
+
+let appData = loadData();
+let currentAwardTarget = null;
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && Array.isArray(parsed.teams) && Array.isArray(parsed.students) && Array.isArray(parsed.rules)) {
+        if (!Array.isArray(parsed.history)) parsed.history = [];
+        return parsed;
+      }
+    }
+  } catch (e) {
+    console.error('Lỗi đọc localStorage:', e);
+  }
+  return buildDefaultData();
+}
+
+function saveData() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+  } catch (e) {
+    console.error('Không thể lưu localStorage:', e);
+  }
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+function fmtPts(n) { return (n > 0 ? '+' : '') + n; }
+
+function getBadge(points) {
+  if (points >= 80) return { label: '👑 Huyền Thoại', bg: '#fff3c4', color: '#8f6400' };
+  if (points >= 50) return { label: '💎 Kiện Tướng', bg: '#e8dff5', color: '#5a3882' };
+  if (points >= 25) return { label: '🚀 Chiến Binh', bg: '#d4e8ff', color: '#1f5ca8' };
+  if (points >= 10) return { label: '⭐ Ngôi Sao', bg: '#d3f8e2', color: '#1b6e44' };
+  return { label: '🌱 Tân Binh', bg: '#f1f3f5', color: '#495057' };
+}
+
+function getTeamScore(teamId) {
+  return appData.students
+    .filter(s => s.teamId === teamId)
+    .reduce((sum, s) => sum + Number(s.points || 0), 0);
+}
+
+function switchTab(tabId, btnEl) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + tabId).classList.add('active');
+  btnEl.classList.add('active');
+  renderAll();
+}
+
+function renderSummary() {
+  const totalStudents = appData.students.length;
+  const totalTeams = appData.teams.length;
+  const totalPoints = appData.students.reduce((sum, s) => sum + Number(s.points || 0), 0);
+  let topTeamName = 'Chưa có';
+  let topTeamScore = -Infinity;
+  appData.teams.forEach(t => {
+    const sc = getTeamScore(t.id);
+    if (sc > topTeamScore) { topTeamScore = sc; topTeamName = `${t.name} (${sc}đ)`; }
+  });
+  document.getElementById('summaryStats').innerHTML = `
+    <div class="stat-card" style="background:var(--pastel-blue)"><div class="stat-icon">🚩</div><div class="stat-info"><h3>${totalTeams}</h3><p>Đội nhóm / Tổ</p></div></div>
+    <div class="stat-card" style="background:var(--pastel-pink)"><div class="stat-icon">🧑‍🎓</div><div class="stat-info"><h3>${totalStudents}</h3><p>Tổng số học sinh</p></div></div>
+    <div class="stat-card" style="background:var(--pastel-mint)"><div class="stat-icon">✨</div><div class="stat-info"><h3>${totalPoints}đ</h3><p>Tổng điểm toàn lớp</p></div></div>
+    <div class="stat-card" style="background:var(--pastel-yellow)"><div class="stat-icon">🏆</div><div class="stat-info"><h3 style="font-size:1.15rem">${escapeHtml(topTeamName)}</h3><p>Tổ đang dẫn đầu</p></div></div>`;
+}
+
+function renderClassroom() {
+  const grid = document.getElementById('teamsGrid');
+  if (appData.teams.length === 0) {
+    grid.innerHTML = `<div class="card empty-state">Chưa có tổ nào. Hãy sang tab <b>Quản Lý Tổ & Học Sinh</b> để tạo tổ mới.</div>`;
+    return;
+  }
+  grid.innerHTML = appData.teams.map((team, idx) => {
+    const theme = TEAM_PASTEL_THEMES[idx % TEAM_PASTEL_THEMES.length];
+    const members = appData.students.filter(s => s.teamId === team.id);
+    const teamScore = members.reduce((sum, s) => sum + Number(s.points || 0), 0);
+    const membersHtml = members.length === 0
+      ? `<div class="empty-state">Chưa có học sinh trong tổ này</div>`
+      : members.map(st => {
+          const badge = getBadge(st.points);
+          const scoreClass = st.points > 0 ? 'score-pos' : (st.points < 0 ? 'score-neg' : 'score-zero');
+          return `
+          <div class="student-item">
+            <div class="student-meta">
+              <div class="student-name">${escapeHtml(st.name)}</div>
+              <div><span class="badge-pill" style="background:${badge.bg};color:${badge.color}">${badge.label}</span></div>
+            </div>
+            <div class="student-controls">
+              <span class="score-chip ${scoreClass}">${fmtPts(st.points)}đ</span>
+              <button class="btn btn-primary btn-sm" onclick="openAwardModal('student','${st.id}')">⚡ Chấm điểm</button>
+            </div>
+          </div>`;
+        }).join('');
+    return `
+      <div class="team-card" style="border-color:${theme.border}">
+        <div class="team-header" style="background:${theme.bg};color:${theme.color}">
+          <div class="team-title-wrap"><h3>${escapeHtml(team.name)}</h3><span>${members.length} thành viên</span></div>
+          <div class="team-score-badge" style="color:${theme.color}">${teamScore} điểm</div>
+        </div>
+        <div class="team-actions-bar">
+          <span style="font-size:.8rem;color:var(--text-muted);font-weight:600">Thưởng/phạt cả tổ:</span>
+          <button class="btn btn-warning btn-sm" onclick="openAwardModal('team','${team.id}')">🏅 Chấm điểm Cả Tổ</button>
+        </div>
+        <div class="student-list">${membersHtml}</div>
+      </div>`;
+  }).join('');
+}
+
+function rankMedal(i) {
+  return i === 0 ? '🥇' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : '#' + (i + 1)));
+}
+function rankClass(i) {
+  return i === 0 ? 'top-1' : (i === 1 ? 'top-2' : (i === 2 ? 'top-3' : ''));
+}
+
+function renderLeaderboard() {
+  const rankedTeams = appData.teams
+    .map(t => ({ ...t, score: getTeamScore(t.id), count: appData.students.filter(s => s.teamId === t.id).length }))
+    .sort((a, b) => b.score - a.score);
+
+  document.getElementById('teamLeaderboard').innerHTML = rankedTeams.length === 0
+    ? `<div class="empty-state">Chưa có dữ liệu tổ</div>`
+    : rankedTeams.map((t, i) => `
+      <div class="rank-row ${rankClass(i)}">
+        <div class="rank-left">
+          <div class="rank-medal">${rankMedal(i)}</div>
+          <div><div style="font-weight:700">${escapeHtml(t.name)}</div><div style="font-size:.8rem;color:var(--text-muted)">${t.count} học sinh</div></div>
+        </div>
+        <div style="font-weight:800;font-size:1.05rem;color:#1f5ca8">${t.score} điểm</div>
+      </div>`).join('');
+
+  const filterSelect = document.getElementById('filterLeaderboardTeam');
+  const currentVal = filterSelect.value || 'ALL';
+  filterSelect.innerHTML = `<option value="ALL">Tất cả các tổ</option>` +
+    appData.teams.map(t => `<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
+  if ([...filterSelect.options].some(o => o.value === currentVal)) filterSelect.value = currentVal;
+
+  const filterTeamId = filterSelect.value;
+  const rankedStudents = appData.students
+    .filter(s => filterTeamId === 'ALL' || s.teamId === filterTeamId)
+    .map(s => {
+      const team = appData.teams.find(t => t.id === s.teamId);
+      return { ...s, teamName: team ? team.name : 'Chưa phân tổ' };
+    })
+    .sort((a, b) => b.points - a.points);
+
+  document.getElementById('studentLeaderboard').innerHTML = rankedStudents.length === 0
+    ? `<div class="empty-state">Chưa có dữ liệu học sinh</div>`
+    : rankedStudents.map((s, i) => {
+        const badge = getBadge(s.points);
+        return `
+        <div class="rank-row ${rankClass(i)}">
+          <div class="rank-left">
+            <div class="rank-medal">${rankMedal(i)}</div>
+            <div>
+              <div style="font-weight:700">${escapeHtml(s.name)} <span style="font-weight:500;font-size:.8rem;color:var(--text-muted)">(${escapeHtml(s.teamName)})</span></div>
+              <span class="badge-pill" style="background:${badge.bg};color:${badge.color};margin-top:3px">${badge.label}</span>
+            </div>
+          </div>
+          <div style="font-weight:800;font-size:1rem">${s.points}đ</div>
+        </div>`;
+      }).join('');
+}
+
+function renderRules() {
+  const grid = document.getElementById('rulesGrid');
+  if (appData.rules.length === 0) {
+    grid.innerHTML = `<div class="empty-state">Chưa có quy tắc nào.</div>`;
+    return;
+  }
+  grid.innerHTML = appData.rules.map(r => {
+    const isPos = r.points >= 0;
+    return `
+    <div class="rule-card ${isPos ? 'positive' : 'negative'}">
+      <div>
+        <div style="font-weight:700;font-size:.95rem">${escapeHtml(r.title)}</div>
+        <button class="btn btn-outline btn-sm" style="margin-top:8px" onclick="deleteRule('${r.id}')">Xóa quy tắc</button>
+      </div>
+      <div class="rule-points">${fmtPts(r.points)}đ</div>
+    </div>`;
+  }).join('');
+}
+
+function renderHistory() {
+  const keyword = (document.getElementById('searchHistory').value || '').toLowerCase();
+  const tbody = document.getElementById('historyTableBody');
+  const filtered = appData.history.filter(h =>
+    String(h.targetName).toLowerCase().includes(keyword) ||
+    String(h.teamName).toLowerCase().includes(keyword) ||
+    String(h.reason).toLowerCase().includes(keyword)
+  );
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty-state">Không có bản ghi lịch sử nào.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = filtered.map(h => {
+    const isPos = h.points >= 0;
+    return `
+    <tr>
+      <td>${escapeHtml(h.timestamp)}</td>
+      <td>${h.targetType === 'team' ? '🚩 ' : '🧑‍🎓 '}<strong>${escapeHtml(h.targetName)}</strong></td>
+      <td>${escapeHtml(h.teamName)}</td>
+      <td>${escapeHtml(h.reason)}</td>
+      <td><span class="score-chip ${isPos ? 'score-pos' : 'score-neg'}">${fmtPts(h.points)}đ</span></td>
+      <td><button class="btn btn-outline btn-sm" onclick="undoHistory('${h.id}')">↩ Hoàn tác</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderManage() {
+  const teamsEl = document.getElementById('manageTeamsList');
+  teamsEl.innerHTML = appData.teams.length === 0
+    ? `<div class="empty-state">Chưa có tổ nào</div>`
+    : appData.teams.map(t => {
+        const count = appData.students.filter(s => s.teamId === t.id).length;
+        return `
+        <div class="student-item" style="margin-bottom:8px">
+          <div><strong>${escapeHtml(t.name)}</strong> <span style="font-size:.82rem;color:var(--text-muted)">(${count} học sinh)</span></div>
+          <button class="btn btn-danger btn-sm" onclick="deleteTeam('${t.id}')">Xóa tổ</button>
+        </div>`;
+      }).join('');
+
+  const select = document.getElementById('newStudentTeam');
+  const prev = select.value;
+  select.innerHTML = appData.teams.map(t => `<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
+  if ([...select.options].some(o => o.value === prev)) select.value = prev;
+
+  const studentsEl = document.getElementById('manageStudentsList');
+  studentsEl.innerHTML = appData.students.length === 0
+    ? `<div class="empty-state">Chưa có học sinh nào</div>`
+    : appData.students.map(s => {
+        const team = appData.teams.find(t => t.id === s.teamId);
+        return `
+        <div class="student-item" style="margin-bottom:8px">
+          <div><strong>${escapeHtml(s.name)}</strong>
+            <span class="badge-pill" style="background:var(--pastel-blue);color:#1f5ca8;margin-left:6px">${team ? escapeHtml(team.name) : 'Chưa có tổ'}</span></div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span style="font-weight:700;font-size:.88rem">${s.points}đ</span>
+            <button class="btn btn-danger btn-sm" onclick="deleteStudent('${s.id}')">Xóa</button>
+          </div>
+        </div>`;
+      }).join('');
+}
+
+function renderAll() {
+  renderSummary();
+  renderClassroom();
+  renderLeaderboard();
+  renderRules();
+  renderHistory();
+  renderManage();
+}
+
+/* ===== Modal chấm điểm ===== */
+function openAwardModal(type, id) {
+  currentAwardTarget = { type, id };
+  const titleEl = document.getElementById('modalTargetTitle');
+  const subEl = document.getElementById('modalTargetSub');
+
+  if (type === 'student') {
+    const st = appData.students.find(s => s.id === id);
+    if (!st) return;
+    const tm = appData.teams.find(t => t.id === st.teamId);
+    titleEl.textContent = `Chấm điểm: ${st.name}`;
+    subEl.textContent = `${tm ? tm.name : ''} • Điểm hiện tại: ${st.points}đ`;
+  } else {
+    const tm = appData.teams.find(t => t.id === id);
+    if (!tm) return;
+    const count = appData.students.filter(s => s.teamId === id).length;
+    titleEl.textContent = `Chấm điểm Cả Tổ: ${tm.name}`;
+    subEl.textContent = `Sẽ cộng/trừ đồng loạt cho tất cả ${count} thành viên trong tổ`;
+  }
+
+  document.getElementById('modalQuickRules').innerHTML = appData.rules.map(r => {
+    const isPos = r.points >= 0;
+    return `
+    <button type="button" class="quick-rule-btn ${isPos ? 'pos' : 'neg'}" onclick="applyRule('${r.id}')">
+      <span style="font-weight:600;font-size:.88rem">${escapeHtml(r.title)}</span>
+      <span class="score-chip ${isPos ? 'score-pos' : 'score-neg'}">${fmtPts(r.points)}đ</span>
+    </button>`;
+  }).join('') || `<div class="empty-state" style="grid-column:1/-1">Chưa có quy tắc nhanh. Hãy dùng phần tùy chỉnh bên dưới.</div>`;
+
+  document.getElementById('awardModal').classList.add('open');
+}
+
+function closeAwardModal() {
+  document.getElementById('awardModal').classList.remove('open');
+  currentAwardTarget = null;
+}
+
+function applyRule(ruleId) {
+  const r = appData.rules.find(x => x.id === ruleId);
+  if (r) applyPoints(r.points, r.title);
+}
+
+function submitCustomAward(e) {
+  e.preventDefault();
+  const sign = Number(document.getElementById('customSign').value);
+  const pts = Math.abs(Number(document.getElementById('customPoints').value));
+  const reason = document.getElementById('customReason').value.trim();
+  if (!pts || !reason) return;
+  applyPoints(sign * pts, reason);
+  document.getElementById('customPoints').value = '';
+  document.getElementById('customReason').value = '';
+}
+
+function applyPoints(delta, reason) {
+  if (!currentAwardTarget) return;
+  const now = new Date().toLocaleString('vi-VN');
+  delta = Number(delta);
+
+  if (currentAwardTarget.type === 'student') {
+    const st = appData.students.find(s => s.id === currentAwardTarget.id);
+    if (!st) return;
+    const tm = appData.teams.find(t => t.id === st.teamId);
+    st.points = Number(st.points || 0) + delta;
+    appData.history.unshift({
+      id: 'h_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+      timestamp: now, targetType: 'student', targetId: st.id,
+      targetName: st.name, teamName: tm ? tm.name : '', reason, points: delta
+    });
+    showToast(`${fmtPts(delta)}đ cho ${st.name} (${reason})`);
+  } else {
+    const tm = appData.teams.find(t => t.id === currentAwardTarget.id);
+    if (!tm) return;
+    const members = appData.students.filter(s => s.teamId === tm.id);
+    if (members.length === 0) {
+      showToast('Tổ này chưa có học sinh nào để chấm điểm!');
+      closeAwardModal();
+      return;
+    }
+    members.forEach(st => { st.points = Number(st.points || 0) + delta; });
+    appData.history.unshift({
+      id: 'h_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+      timestamp: now, targetType: 'team', targetId: tm.id,
+      targetName: `Cả ${tm.name} (${members.length} HS)`, teamName: tm.name, reason, points: delta
+    });
+    showToast(`${fmtPts(delta)}đ cho toàn bộ ${tm.name}`);
+  }
+
+  saveData();
+  closeAwardModal();
+  renderAll();
+}
+
+function undoHistory(historyId) {
+  const idx = appData.history.findIndex(h => h.id === historyId);
+  if (idx === -1) return;
+  const item = appData.history[idx];
+  if (item.targetType === 'student') {
+    const st = appData.students.find(s => s.id === item.targetId);
+    if (st) st.points -= item.points;
+  } else if (item.targetType === 'team') {
+    appData.students.filter(s => s.teamId === item.targetId).forEach(s => { s.points -= item.points; });
+  }
+  appData.history.splice(idx, 1);
+  saveData();
+  renderAll();
+  showToast('Đã hoàn tác bản ghi điểm!');
+}
+
+function clearHistory() {
+  if (!confirm('Bạn có chắc muốn xóa toàn bộ nhật ký lịch sử? (Điểm hiện tại của học sinh vẫn được giữ nguyên)')) return;
+  appData.history = [];
+  saveData();
+  renderAll();
+  showToast('Đã xóa lịch sử ghi nhận');
+}
+
+/* ===== Quy tắc ===== */
+function addRule(e) {
+  e.preventDefault();
+  const title = document.getElementById('ruleTitle').value.trim();
+  const type = document.getElementById('ruleType').value;
+  const rawPts = Math.abs(Number(document.getElementById('rulePoints').value));
+  if (!title || !rawPts) return;
+  appData.rules.push({ id: 'r_' + Date.now(), title, points: type === 'pos' ? rawPts : -rawPts });
+  document.getElementById('ruleTitle').value = '';
+  document.getElementById('rulePoints').value = '';
+  saveData();
+  renderAll();
+  showToast('Đã thêm quy tắc mới!');
+}
+
+function deleteRule(id) {
+  appData.rules = appData.rules.filter(r => r.id !== id);
+  saveData();
+  renderAll();
+  showToast('Đã xóa quy tắc');
+}
+
+/* ===== Tổ & học sinh ===== */
+function addTeam(e) {
+  e.preventDefault();
+  const name = document.getElementById('newTeamName').value.trim();
+  if (!name) return;
+  appData.teams.push({ id: 't_' + Date.now(), name });
+  document.getElementById('newTeamName').value = '';
+  saveData();
+  renderAll();
+  showToast(`Đã tạo ${name}`);
+}
+
+function deleteTeam(id) {
+  if (!confirm('Xóa tổ này sẽ xóa cả danh sách học sinh thuộc tổ. Bạn chắc chắn chứ?')) return;
+  appData.teams = appData.teams.filter(t => t.id !== id);
+  appData.students = appData.students.filter(s => s.teamId !== id);
+  saveData();
+  renderAll();
+  showToast('Đã xóa tổ');
+}
+
+function addStudent(e) {
+  e.preventDefault();
+  const name = document.getElementById('newStudentName').value.trim();
+  const teamId = document.getElementById('newStudentTeam').value;
+  if (!name || !teamId) { showToast('Hãy tạo tổ trước khi thêm học sinh!'); return; }
+  appData.students.push({ id: 's_' + Date.now() + '_' + Math.floor(Math.random() * 1000), name, teamId, points: 0 });
+  document.getElementById('newStudentName').value = '';
+  saveData();
+  renderAll();
+  showToast(`Đã thêm học sinh ${name}`);
+}
+
+function deleteStudent(id) {
+  appData.students = appData.students.filter(s => s.id !== id);
+  saveData();
+  renderAll();
+  showToast('Đã xóa học sinh');
+}
+
+/* ===== Xuất / Nhập / Reset ===== */
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' });
+  downloadBlob(blob, `thi-dua-lop-hoc-${new Date().toISOString().slice(0, 10)}.json`);
+  showToast('Đã tải xuống file sao lưu JSON');
+}
+
+function importJSON(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      if (parsed && Array.isArray(parsed.teams) && Array.isArray(parsed.students) && Array.isArray(parsed.rules)) {
+        appData = parsed;
+        if (!Array.isArray(appData.history)) appData.history = [];
+        saveData();
+        renderAll();
+        showToast('Khôi phục dữ liệu thành công!');
+      } else {
+        alert('File JSON không đúng định dạng của ứng dụng.');
+      }
+    } catch (err) {
+      alert('Lỗi đọc file JSON: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function exportCSV() {
+  const q = v => '"' + String(v).replace(/"/g, '""') + '"';
+  const rows = [['Họ và Tên', 'Tổ / Nhóm', 'Tổng Điểm', 'Huy Hiệu Đạt Được'].map(q)];
+  [...appData.students].sort((a, b) => b.points - a.points).forEach(s => {
+    const tm = appData.teams.find(t => t.id === s.teamId);
+    const badge = getBadge(s.points).label.replace(/^\S+\s/, '');
+    rows.push([q(s.name), q(tm ? tm.name : ''), s.points, q(badge)]);
+  });
+  const csv = '\uFEFF' + rows.map(r => r.join(',')).join('\r\n');
+  downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8;' }), `bang-thanh-tich-hoc-sinh-${new Date().toISOString().slice(0, 10)}.csv`);
+  showToast('Đã xuất file Excel (CSV) tiếng Việt chuẩn!');
+}
+
+function resetDemoData() {
+  if (!confirm('Khôi phục về dữ liệu mẫu ban đầu? Dữ liệu hiện tại sẽ bị ghi đè.')) return;
+  appData = buildDefaultData();
+  saveData();
+  renderAll();
+  showToast('Đã khôi phục dữ liệu mẫu');
+}
+
+document.getElementById('awardModal').addEventListener('click', function (e) {
+  if (e.target === this) closeAwardModal();
+});
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') closeAwardModal();
+});
+
+renderAll();
+</script>
+</body>
+</html>
